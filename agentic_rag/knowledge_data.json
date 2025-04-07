@@ -1,0 +1,109 @@
+{
+  "knowledge_data" :{
+    "trekking": {
+        "type": "activity",
+        "items": {
+            "gps device": "requires",
+            "dry bag": "optional"
+        },
+        "contexts": {
+            "night": {
+                "torch": "requires",
+                "headlamp": "optional",
+                "reflective vest": "requires"
+            },
+            "rain": {
+                "raincoat": "requires",
+                "waterproof boots": "requires"
+            },
+            "cold": {
+                "thermal jacket": "requires",
+                "gloves": "optional",
+                "hat": "optional"
+            }
+        }
+    },
+    "gym": {
+        "type": "activity",
+        "items": {
+            "gym shoes": "requires",
+            "water bottle": "requires",
+            "gym bag": "optional",
+            "towel": "optional"
+        },
+        "contexts": {
+            "indoor": {
+                "yoga mat": "optional",
+                "headphones": "optional"
+            },
+            "early morning": {
+                "light jacket": "optional"
+            }
+        }
+    },
+    "swimming": {
+        "type": "activity",
+        "items": {
+            "swimsuit": "requires",
+            "towel": "requires",
+            "goggles": "requires"
+        },
+        "contexts": {
+            "outdoor": {
+                "sunscreen": "requires",
+                "slippers": "optional"
+            },
+            "cold": {
+                "swim cap": "requires",
+                "robe": "optional"
+            }
+        }
+    },
+    "camping": {
+        "type": "activity",
+        "items": {
+            "tent": "requires",
+            "sleeping bag": "requires",
+            "first aid kit": "requires",
+            "portable stove": "optional"
+        },
+        "contexts": {
+            "night": {
+                "lantern": "requires",
+                "flashlight": "optional"
+            },
+            "cold": {
+                "thermal blanket": "requires",
+                "fire starter": "optional"
+            },
+            "rain": {
+                "tarp": "requires",
+                "waterproof backpack": "optional"
+            }
+        }
+    },
+    "cycling": {
+        "type": "activity",
+        "items": {
+            "helmet": "requires",
+            "bike lock": "optional",
+            "water bottle": "requires",
+            "gloves": "optional"
+        },
+        "contexts": {
+            "night": {
+                "bike light": "requires",
+                "reflective vest": "requires"
+            },
+            "rain": {
+                "mudguard": "optional",
+                "rain jacket": "requires"
+            },
+            "long ride": {
+                "snacks": "optional",
+                "repair kit": "requires"
+            }
+        }
+    }
+}
+}
