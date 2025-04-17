@@ -124,7 +124,9 @@ def get_items():
 @app.route('/')
 def index():
     return render_template("interactive-assist.html")
-
+@app.route('/health', methods=['GET'])
+def health():
+    return {"status": "running"}, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
