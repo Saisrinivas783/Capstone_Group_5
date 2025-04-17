@@ -1,60 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <title>Activity Essentials Finder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #6c63ff;
+      --primary-dark: #574b90;
+      --background: #f4f4f8;
+      --container-bg: rgba(255, 255, 255, 0.7);
+      --text: #333;
+    }
+    [data-theme="dark"] {
+      --primary: #9fa6ff;
+      --primary-dark: #8e94f2;
+      --background: #12121a;
+      --container-bg: rgba(31, 31, 42, 0.75);
+      --text: #f1f1f1;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background: #f4f4f8;
-      padding: 40px;
-      text-align: center;
+      background: linear-gradient(-45deg, #6c63ff, #574b90, #f4f4f8, #9fa6ff);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      transition: background 0.4s, color 0.4s;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: none;
+      border: 2px solid var(--primary);
+      color: var(--primary-dark);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .theme-toggle:hover {
+      background: var(--primary-dark);
+      color: #fff;
     }
 
     .container {
-      max-width: 600px;
-      margin: 0 auto;
+      max-width: 480px;
+      width: 100%;
+      background: var(--container-bg);
+      backdrop-filter: blur(12px) saturate(150%);
+      border: 1.5px solid rgba(108,99,255,0.13);
+      box-shadow: 0 8px 40px rgba(108, 99, 255, 0.14);
+      padding: 36px 32px;
+      border-radius: 24px;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2, h3 {
+      font-weight: 700;
+      margin-bottom: 24px;
+      font-size: 2rem;
     }
 
     .upload-btn-wrapper {
       position: relative;
       overflow: hidden;
-      display: inline-block;
-      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
     }
 
     .upload-btn {
-      border: 2px solid #6c63ff;
-      background-color: #6c63ff;
-      color: white;
-      padding: 10px 25px;
-      font-size: 16px;
+      border: none;
+      background: linear-gradient(90deg, var(--primary) 60%, var(--primary-dark) 100%);
+      color: #fff;
+      padding: 12px 32px;
+      font-size: 1rem;
       border-radius: 30px;
       cursor: pointer;
-      transition: 0.3s;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(108, 99, 255, 0.08);
     }
 
     .upload-btn:hover {
-      background-color: #574b90;
+      background: linear-gradient(90deg, var(--primary-dark) 60%, var(--primary) 100%);
     }
 
     .upload-btn-wrapper input[type="file"] {
-      font-size: 100px;
       position: absolute;
       left: 0;
       top: 0;
       opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .upload-message {
+      color: #27ae60;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: none;
+      text-align: center;
+    }
+
+    .preview-thumbnail {
+      display: none;
+      width: 120px;
+      height: auto;
+      margin: 0 auto 16px auto;
+      border-radius: 10px;
+      border: 1px solid #ececff;
     }
 
     .search-container {
       display: flex;
       align-items: center;
-      background: white;
-      border: 2px solid #ccc;
+      background: #f8f8ff;
+      border: 2px solid #e0e0ef;
       border-radius: 30px;
-      padding: 10px 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      padding: 10px 18px;
       margin-bottom: 20px;
     }
 
@@ -62,159 +146,203 @@
       border: none;
       outline: none;
       flex-grow: 1;
-      font-size: 16px;
-      padding: 5px 10px;
-    }
-
-    .search-container button {
-      background: none;
-      border: none;
-      cursor: pointer;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--text);
     }
 
     .search-container button img {
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
     }
 
     .submit-btn {
-      padding: 12px 30px;
-      background-color: #6c63ff;
+      width: 100%;
+      padding: 14px 0;
+      background: linear-gradient(90deg, var(--primary) 60%, var(--primary-dark) 100%);
       color: white;
-      font-size: 16px;
+      font-size: 1.08rem;
+      font-weight: 600;
       border: none;
       border-radius: 30px;
       cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .submit-btn:hover {
-      background-color: #574b90;
+      margin-top: 8px;
     }
 
     ul {
-      text-align: left;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: 30px auto 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      background: rgba(248,248,255,0.8);
+      box-shadow: 0 2px 8px rgba(108,99,255,0.07);
+      padding: 18px 22px;
+      border-radius: 16px;
+      max-width: 420px;
+      margin: 26px auto 0;
+      font-size: 1rem;
     }
 
     li {
-      margin: 6px 0;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      box-shadow: 0 2px 6px rgba(108,99,255,0.06);
+      font-weight: 500;
     }
 
     .detected-image {
-      margin-top: 30px;
+      margin-top: 28px;
       max-width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(108,99,255,0.10);
+      border: 2px solid #ececff;
     }
 
-    /* Mic listening animation */
-    .listening img {
-      animation: pulse 1s infinite;
+    .spinner {
+      display: none;
+      margin: 24px auto;
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid var(--primary);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      animation: spin 1s ease-in-out infinite;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.6; }
-      100% { transform: scale(1); opacity: 1; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
-<body>
 
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
   <div class="container">
     <h2>Activity Essentials Finder</h2>
-
-    <!-- Search Form -->
-    <form action="/get-items" method="post" enctype="multipart/form-data">
-
-      <!-- Image Upload -->
+    <form id="essentialsForm" action="/get-items" method="post" enctype="multipart/form-data">
       <div class="upload-btn-wrapper">
-        <button class="upload-btn">Upload Image</button>
-        <input type="file" name="image" accept="image/*" required />
+        <button class="upload-btn" type="button" onclick="document.getElementById('imageUpload').click();">Upload Image</button>
+        <input type="file" name="image" id="imageUpload" accept="image/*" required />
       </div>
+      <p id="uploadMessage" class="upload-message">Image uploaded successfully.</p>
+      <img id="imagePreview" class="preview-thumbnail" alt="Image Preview">
 
-      <!-- Search bar with voice -->
       <div class="search-container">
         <input type="text" name="activity" id="activityInput" placeholder="What are you planning to do?" required>
-        <button type="button" id="micButton" onclick="startVoiceInput(this)">
+        <button type="button" onclick="startVoiceInput(this)">
           <img src="https://img.icons8.com/ios-glyphs/30/000000/microphone.png" alt="Mic" />
         </button>
       </div>
 
-      <!-- Submit -->
       <button type="submit" class="submit-btn">Find Essentials</button>
     </form>
 
-    <!-- Display Results -->
-   {% if error %}
-  <p style="color: red;"><strong>{{ error }}</strong></p>
-{% endif %}
+    <div class="spinner" id="loadingSpinner"></div>
 
-{% if essential_items %}
-  <h3>All Essential Items for This Activity:</h3>
-  <ul>
-    {% for item in essential_items %}
-      <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+    {% if error %}
+      <p style="color: red; font-weight:600; text-align:center;"><strong>{{ error }}</strong></p>
+    {% endif %}
 
-{% if items %}
-  <h3>Items Detected in Image:</h3>
-  <ul>
-    {% for item in items %}
-      <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+    {% if essential_items %}
+      <h3>All Essential Items for This Activity:</h3>
+      <ul>
+        {% for item in essential_items %}
+          <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-{% if image_path %}
-  <h3>Annotated Image:</h3>
-  <img src="{{ image_path }}" alt="Annotated" class="detected-image">
-{% endif %}
+    {% if items %}
+      <h3>Items Detected in Image:</h3>
+      <ul>
+        {% for item in items %}
+          <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if image_path %}
+      <h3>Annotated Image:</h3>
+      <img src="{{ image_path }}" alt="Annotated Image" class="detected-image">
+    {% endif %}
+
+    {% if image_path or essential_items or items %}
+      <div style="text-align:center; margin-top: 40px;">
+        <button class="upload-btn" onclick="startNewSession()">Try Another Image</button>
+      </div>
+    {% endif %}
   </div>
 
-  <!-- Voice Script -->
   <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("theme", next);
+    }
+
+    window.onload = () => {
+      const saved = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", saved);
+    };
+
     function startVoiceInput(button) {
       if (!('webkitSpeechRecognition' in window)) {
         alert("Your browser doesn't support voice input.");
         return;
       }
-
       const recognition = new webkitSpeechRecognition();
       recognition.lang = 'en-US';
       recognition.interimResults = false;
       recognition.continuous = false;
-
       const inputField = document.getElementById('activityInput');
-
-      // Visual cue for listening
       button.classList.add('listening');
-
       recognition.onresult = function(event) {
         const transcript = event.results[0][0].transcript;
         inputField.value = transcript;
       };
-
       recognition.onerror = function(event) {
-        console.error("Speech recognition error:", event.error);
-        alert("Error: " + event.error);
+        alert("Voice error: " + event.error);
       };
-
       recognition.onend = function() {
         button.classList.remove('listening');
       };
-
       recognition.start();
     }
-  </script>
 
+    function startNewSession() {
+      window.location.href = "/";
+    }
+
+    const fileInput = document.getElementById('imageUpload');
+    const uploadMsg = document.getElementById('uploadMessage');
+    const imagePreview = document.getElementById('imagePreview');
+    const form = document.getElementById('essentialsForm');
+    const spinner = document.getElementById('loadingSpinner');
+
+    fileInput.addEventListener('change', function () {
+      uploadMsg.style.display = 'none';
+      imagePreview.style.display = 'none';
+      imagePreview.classList.remove('show');
+      imagePreview.src = '';
+
+      if (fileInput.files && fileInput.files[0]) {
+        uploadMsg.style.display = 'block';
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block';
+          imagePreview.classList.add('show');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    form.addEventListener('submit', function () {
+      spinner.style.display = 'block';
+    });
+  </script>
 </body>
 </html>
