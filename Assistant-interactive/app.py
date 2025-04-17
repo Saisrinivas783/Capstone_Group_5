@@ -162,6 +162,49 @@ def log_activity_to_console(activity: str, context: str, items: list):
     print(f"Context Detected  : {context}")
     print(f"Essential Items   : {summarize_item_list(items)}")
     print("=============================================")
+# ---------------------------
+# Database Helper Functions
+# ---------------------------
+
+def check_activity_exists(session, activity_name: str) -> bool:
+    """
+    Check if an activity exists in the database.
+    """
+    result = session.run(
+        "MATCH (a:Activity) WHERE toLower(a.name) = toLower($activity_name) RETURN a",
+        {"activity_name": activity_name}
+    )
+    return result.peek() is not None
+
+def create_activity_node(session, activity_name: str):
+    """
+    Create a new activity node in the database.
+    """
+    session.run(
+        "MERGE (a:Activity {name: $activity_name})",
+        {"activity_name": activity_name}
+    )
+
+def create_item_node(session, item_name: str):
+    """
+    Create a new item node in the database.
+    """
+    session.run(
+        "MERGE (i:Item {name: $item_name})",
+        {"item_name": item_name}
+    )
+
+def link_activity_to_item(session, activity_name: str, item_name: str):
+    """
+    Create a REQUIRES relationship between an activity and an item.
+    """
+    session.run(
+        """
+        MATCH (a:Activity {name: $activity_name}), (i:Item {name: $item_name})
+        MERGE (a)-[:REQUIRES]->(i)
+        """,
+        {"activity_name": activity_name, "item_name": item_name}
+    )
 
 @app.route('/')
 def index():
