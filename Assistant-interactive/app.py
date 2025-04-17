@@ -120,6 +120,48 @@ def get_items():
         return render_template("interactive-assist.html", items=detected_labels, essential_items=essential_items, image_path=output_path)
     except Exception as e:
         return render_template("interactive-assist.html", items=[], essential_items=essential_items, image_path=None, error=f"Detection error: {str(e)}")
+# ---------------------------
+# Utilities for Activity and Item Processing
+# ---------------------------
+
+def normalize_text(text: str) -> str:
+    """
+    Normalize text by converting to lowercase and stripping extra spaces.
+    """
+    if not text:
+        return ""
+    return text.strip().lower()
+
+def merge_items(list1, list2):
+    """
+    Merge two lists of items into a unique set, preserving order.
+    """
+    seen = set()
+    merged = []
+    for item in list1 + list2:
+        norm_item = normalize_text(item)
+        if norm_item not in seen:
+            seen.add(norm_item)
+            merged.append(item)
+    return merged
+
+def summarize_item_list(items):
+    """
+    Generate a summary string of all items, separated by commas.
+    """
+    if not items:
+        return ""
+    return ", ".join(items)
+
+def log_activity_to_console(activity: str, context: str, items: list):
+    """
+    Log the extracted activity, context, and essential items to the console.
+    """
+    print("=============================================")
+    print(f"Activity Detected : {activity}")
+    print(f"Context Detected  : {context}")
+    print(f"Essential Items   : {summarize_item_list(items)}")
+    print("=============================================")
 
 @app.route('/')
 def index():
