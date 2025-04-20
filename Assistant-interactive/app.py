@@ -205,7 +205,42 @@ def link_activity_to_item(session, activity_name: str, item_name: str):
         """,
         {"activity_name": activity_name, "item_name": item_name}
     )
+def load_image(image_path: str):
+    """
+    Load an image from a given path.
+    """
+    if not image_path:
+        raise ValueError("Image path is empty.")
+    image = cv2.imread(image_path)
+    if image is None:
+        raise FileNotFoundError(f"Image not found at {image_path}")
+    return image
 
+def resize_image(image, width: int = 640, height: int = 480):
+    """
+    Resize image to the specified width and height.
+    """
+    if image is None:
+        raise ValueError("No image provided for resizing.")
+    return cv2.resize(image, (width, height))
+
+def draw_label_on_image(image, label: str, position: tuple, color=(0, 255, 0)):
+    """
+    Draw a label text on an image at a given position.
+    """
+    if image is None:
+        raise ValueError("No image provided for drawing label.")
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(image, label, position, font, 0.5, color, 1, cv2.LINE_AA)
+    return image
+
+def save_image(image, save_path: str):
+    """
+    Save the image to the specified path.
+    """
+    if image is None:
+        raise ValueError("No image provided for saving.")
+    cv2.imwrite(save_path, image)
 @app.route('/')
 def index():
     return render_template("interactive-assist.html")
