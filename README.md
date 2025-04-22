@@ -127,8 +127,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - OpenRouter for API access to language models
 - Supervision library for annotation tools
 
-Citations:
-[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/5324675/68d1f5ac-a241-4794-be9e-15f15fd62c73/paste.txt
 
----
-Answer from Perplexity: pplx.ai/share
