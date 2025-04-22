@@ -129,11 +129,11 @@ def get_items():
         return render_template("interactive-assist.html", items=detected_labels, essential_items=essential_items, image_path=output_path)
     except Exception as e:
         return render_template("interactive-assist.html", items=[], essential_items=essential_items, image_path=None, error=f"Detection error: {str(e)}")
-
+# Default route to render the initial HTML form
 @app.route('/')
 def index():
     return render_template("interactive-assist.html")
 
-
+# Entry point: Run the Flask app in debug mode
 if __name__ == '__main__':
     app.run(debug=True)
