@@ -48,7 +48,7 @@ The system leverages a knowledge graph to store relationships between activities
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/activity-essentials-finder.git
+   git clone https://github.com/Saisrinivas783/Capstone_Group_5/
    cd activity-essentials-finder
    ```
 
