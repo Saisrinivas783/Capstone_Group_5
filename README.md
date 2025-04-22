@@ -127,4 +127,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - OpenRouter for API access to language models
 - Supervision library for annotation tools
 
+## Team Members
 
+- Darapureddy Bhagavath Sai 
+- Lakkoju Sai Srinivas
+- RAGANNAGARI BALA KRISHNA REDDY 
+- Nadakuditi Sai Avinash
