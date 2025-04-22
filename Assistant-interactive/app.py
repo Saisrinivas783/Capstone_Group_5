@@ -1,3 +1,4 @@
+# Import required libraries
 from flask import Flask, request, jsonify,render_template
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -7,12 +8,18 @@ from ultralytics import YOLO
 import supervision as sv
 import cv2 as cv
 
+
+# Load the YOLO model for object detection
+
 yolo_model = YOLO('yolov8m-world.pt')
 box_annotator = sv.BoxAnnotator()
 label_annotator = sv.LabelAnnotator()
 
 
+# Load environment variables from a .env file
+
 load_dotenv()
+# Create a Flask app instance
 app = Flask(__name__)
 
 
