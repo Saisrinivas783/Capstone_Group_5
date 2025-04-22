@@ -1,6 +1,8 @@
-# Activity Essentials Finder
+# 🧭 Activity Essentials Finder
 
-![License](https://img.shields.io/badge that helps users identify essential items needed for various activities by combining computer vision with AI-powered recommendations.
+> A smart, interactive assistant that helps users identify essential items for any given activity using a combination of OpenAI (via OpenRouter), Neo4j knowledge graph, and YOLOv8 object detection. Includes a modern, responsive UI with light/dark themes and voice input.
+
+---
 
 ## Overview
 
