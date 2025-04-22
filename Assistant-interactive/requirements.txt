@@ -1,0 +1,7 @@
+flask
+openai
+python-dotenv
+ultralytics
+supervision
+opencv-python
+neo4j
