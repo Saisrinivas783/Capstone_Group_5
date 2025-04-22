@@ -89,6 +89,12 @@ def obj_recognition_gemini(text: str, client1, model_name1: str):
 # Route to handle POST request: Get activity + image and return detected essential items.
 @app.route('/get-items', methods=['POST'])
 def get_items():
+    """
+    Main API route to handle user input (activity + uploaded image):
+    1. Generates essential items for the activity.
+    2. Detects those items in the uploaded image.
+    3. Returns the annotated image with detected items highlighted.
+    """
     activity_text = request.form.get('activity')
     image_file = request.files.get('image')
 
@@ -97,6 +103,8 @@ def get_items():
 
     image_path = "static/uploaded.jpg"
     image_file.save(image_path)
+    
+    # Initialize the OpenAI clients
 
     client, model_name = initialize_llm_client()
     client1, model_name1 = initialize_vision_client()
@@ -116,6 +124,7 @@ def get_items():
         yolo_model.set_classes(essential_items)
         img = cv.imread(image_path)
         results = yolo_model.predict(img)
+        # Convert YOLO results into supervision format
         detections = sv.Detections.from_ultralytics(results[0])
 
         annotated = box_annotator.annotate(scene=img.copy(), detections=detections)
