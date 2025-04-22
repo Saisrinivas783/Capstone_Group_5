@@ -9,20 +9,20 @@ import supervision as sv
 import cv2 as cv
 
 
-# Load the YOLO model for object detection
+# Loaded the YOLO model for object detection
 
 yolo_model = YOLO('yolov8m-world.pt')
 box_annotator = sv.BoxAnnotator()
 label_annotator = sv.LabelAnnotator()
 
 
-# Load environment variables from a .env file
+# Loaded environment variables from a .env file
 
 load_dotenv()
-# Create a Flask app instance
+# Created a Flask app instance
 app = Flask(__name__)
 
-
+# Function to initialize OpenAI LLM 
 def initialize_llm_client():
     """
     Initialize the OpenAI client with specified API key and model.
@@ -34,12 +34,14 @@ def initialize_llm_client():
     client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
     return client, model_name
 
+# Function to initialize OpenAI client for vision-related queries. 
 def initialize_vision_client():
     api_key = "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"
     model_name = "google/gemini-2.0-pro-exp-02-05:free"
     client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
     return client, model_name
-
+    
+# Function to generate the essential items list based on a given activity.
 def generate_response(query: str, client, model_name: str) -> str:
     system_prompt = f""" You are a personal assistant. Your duty is to identify the essential items
     that need to be taken from home for the activity specified below...give me the outputs in the dorm 
@@ -60,7 +62,7 @@ def generate_response(query: str, client, model_name: str) -> str:
         return response.choices[0].message.content
     except Exception as e:
         return str(e)
-
+#Function to clean and simplify the essential items list using another vision model.
 def obj_recognition_gemini(text: str, client1, model_name1: str):
     system_prompt = f'''
     Hello! I have a structured list of essential items grouped by various categories tailored for a specific activity. 
@@ -84,7 +86,7 @@ def obj_recognition_gemini(text: str, client1, model_name1: str):
         return response.choices[0].message.content
     except Exception as e:
         return str(e)
-
+# Route to handle POST request: Get activity + image and return detected essential items.
 @app.route('/get-items', methods=['POST'])
 def get_items():
     activity_text = request.form.get('activity')
