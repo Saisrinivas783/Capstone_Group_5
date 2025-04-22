@@ -34,7 +34,6 @@ def initialize_llm_client():
     client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=OPENROUTER_API_KEY)
     return client, OPENROUTER_MODEL
 
-# Extract activity/context
 def generate_activity_context(query: str, client, model_name: str) -> str:
     system_prompt = f"""You are a helpful assistant. Extract the following:
 
@@ -61,7 +60,6 @@ Now extract from this: {query}
     except Exception as e:
         return str(e)
 
-# Generate essential items list
 def generate_items_list(query: str, client, model_name: str) -> str:
     system_prompt = f"""You are a smart assistant. Based on the activity and context, return only a **comma-separated list** of essential items.
 
@@ -89,16 +87,28 @@ item1, item2, item3, ...
     except Exception as e:
         return str(e)
 
-# Fetch items from Neo4j
 def fetch_items_from_graph(activity, context=None):
     with driver.session() as session:
-        check_result = session.run(
-            "MATCH (a:Activity) WHERE toLower(a.name) = toLower($activity) RETURN a",
-            {"activity": activity}
-        )
-        if check_result.peek() is None:
-            print(f"[Neo4j] Activity '{activity}' not found.")
-            return None
+        if context and context.lower() != "none":
+            combo_check = session.run(
+                """
+                MATCH (a:Activity)-[:HAS_CONTEXT]->(c:Context)
+                WHERE toLower(a.name) = toLower($activity) AND toLower(c.name) = toLower($context)
+                RETURN c
+                """,
+                {"activity": activity, "context": context}
+            )
+            if combo_check.peek() is None:
+                print(f"[Neo4j] Activity '{activity}' exists but context '{context}' is new.")
+                return None
+        else:
+            activity_check = session.run(
+                "MATCH (a:Activity) WHERE toLower(a.name) = toLower($activity) RETURN a",
+                {"activity": activity}
+            )
+            if activity_check.peek() is None:
+                print(f"[Neo4j] Activity '{activity}' not found.")
+                return None
 
         activity_items = session.run(
             """
@@ -125,7 +135,7 @@ def fetch_items_from_graph(activity, context=None):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template("interactive-assist.html")
+    return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, summary_text="")
 
 @app.route('/get-items', methods=['POST'])
 def get_items():
@@ -133,7 +143,7 @@ def get_items():
     image_file = request.files.get('image')
 
     if not activity_description or not image_file:
-        return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, error="Missing input text or image.")
+        return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, summary_text="", error="Missing input text or image.")
 
     image_path = "static/uploaded.jpg"
     image_file.save(image_path)
@@ -151,9 +161,9 @@ def get_items():
         context = context_match.group(1).strip().lower() if context_match else "none"
 
         if not activity:
-            return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, error="Could not extract activity.")
+            return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, summary_text="", error="Could not extract activity.")
     except Exception as e:
-        return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, error=f"Extraction error: {str(e)}")
+        return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, summary_text="", error=f"Extraction error: {str(e)}")
 
     print(f"→ Querying Neo4j with: Activity='{activity}', Context='{context}'")
     essential_items = fetch_items_from_graph(activity, context)
@@ -163,8 +173,59 @@ def get_items():
             generation_response = generate_items_list(activity_description, client, model_name)
             print("[LLM Item List]:", generation_response)
             essential_items = [item.strip() for item in generation_response.split(',') if item.strip()]
+
+            already_exists = False
+            with driver.session() as session:
+                if context and context != "none":
+                    combo_check = session.run(
+                        """
+                        MATCH (a:Activity)-[:HAS_CONTEXT]->(c:Context)
+                        WHERE toLower(a.name) = toLower($activity) AND toLower(c.name) = toLower($context)
+                        RETURN c
+                        """,
+                        {"activity": activity, "context": context}
+                    )
+                    if combo_check.peek() is not None:
+                        already_exists = True
+                else:
+                    activity_check = session.run(
+                        "MATCH (a:Activity) WHERE toLower(a.name) = toLower($activity) RETURN a",
+                        {"activity": activity}
+                    )
+                    if activity_check.peek() is not None:
+                        already_exists = True
+
+            if not already_exists:
+                with driver.session() as session:
+                    session.run(
+                        """
+                        MERGE (a:Activity {name: $activity})
+                        WITH a
+                        UNWIND $items AS item_name
+                        MERGE (i:Item {name: item_name})
+                        MERGE (a)-[:REQUIRES]->(i)
+                        """,
+                        {"activity": activity, "items": essential_items}
+                    )
+
+                    if context and context != "none":
+                        session.run(
+                            """
+                            MERGE (a:Activity {name: $activity})
+                            MERGE (c:Context {name: $context})
+                            MERGE (a)-[:HAS_CONTEXT]->(c)
+                            WITH c
+                            UNWIND $items AS item_name
+                            MERGE (i:Item {name: item_name})
+                            MERGE (c)-[:INFLUENCES]->(i)
+                            """,
+                            {"activity": activity, "context": context, "items": essential_items}
+                        )
+
+                print(f"[Neo4j] Inserted new activity '{activity}' with items and context '{context}'")
+
         except Exception as e:
-            return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, error=f"LLM generation error: {str(e)}")
+            return render_template("interactive-assist.html", items=[], essential_items=[], image_path=None, summary_text="", error=f"LLM generation/Neo4j update error: {str(e)}")
 
     try:
         yolo_model.set_classes(essential_items)
@@ -180,9 +241,20 @@ def get_items():
 
         detected_labels = [essential_items[int(i)] for i in detections.class_id] if len(detections) else []
 
-        return render_template("interactive-assist.html", items=detected_labels, essential_items=essential_items, image_path=output_path)
+        summary_text = (
+            f"The following essential items were detected in the image: {', '.join(detected_labels)}."
+            if detected_labels else "No essential items were detected in the image."
+        )
+
+        return render_template(
+            "interactive-assist.html",
+            items=detected_labels,
+            essential_items=essential_items,
+            image_path=output_path,
+            summary_text=summary_text
+        )
     except Exception as e:
-        return render_template("interactive-assist.html", items=[], essential_items=essential_items, image_path=None, error=f"Detection error: {str(e)}")
+        return render_template("interactive-assist.html", items=[], essential_items=essential_items, image_path=None, summary_text="", error=f"Detection error: {str(e)}")
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)

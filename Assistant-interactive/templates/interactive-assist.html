@@ -267,6 +267,14 @@
       <img src="{{ image_path }}" alt="Annotated Image" class="detected-image">
     {% endif %}
 
+    {% if summary_text %}
+      <h3>Summary:</h3>
+      <p id="summaryText" style="font-weight:500; text-align:center;">{{ summary_text }}</p>
+      <div style="text-align:center;">
+        <button class="upload-btn" onclick="speakSummary()">🔊 Read Aloud</button>
+      </div>
+    {% endif %}
+
     {% if image_path or essential_items or items %}
       <div style="text-align:center; margin-top: 40px;">
         <button class="upload-btn" onclick="startNewSession()">Try Another Image</button>
@@ -313,6 +321,19 @@
 
     function startNewSession() {
       window.location.href = "/";
+    }
+
+    function speakSummary() {
+      const summaryText = document.getElementById("summaryText").innerText;
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(summaryText);
+        utterance.lang = 'en-US';
+        utterance.pitch = 1;
+        utterance.rate = 1.1;
+        speechSynthesis.speak(utterance);
+      } else {
+        alert("Sorry, your browser does not support text-to-speech.");
+      }
     }
 
     const fileInput = document.getElementById('imageUpload');
